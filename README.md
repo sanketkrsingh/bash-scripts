@@ -23,7 +23,7 @@ Usage:
      * If STDOUT is required, add @ as suffix to mpc command. Ex:
        * *mpc ls @* (or) *mpc ls@*
        * *mpc playlist@* (or) *mpc playlist @* etc.
-* Use "mpc lyrics" for displaying lyrics (excluding " quotes)
+* Use "*mpc lyrics*" for displaying lyrics (excluding " quotes)
 * It searches lyrics via glyrc and download it to specified directory
    mentioned in variable **MPCLYRICSDIR**
    

@@ -2,7 +2,7 @@
 Shell script for perfoming operations on mpd via dmenu and mpc client
 
 Features:
-* dmenu_mpd helps you to perform every single fuction of mpc via interactive dmenu
+* dmenu_mpd helps you to perform every single function of mpc via interactive dmenu
 * You may also view and download lyrics of song being played.
 * It simply decrease the access time for playing music, searching & loading playlist etc... 
 
@@ -16,7 +16,7 @@ Usage:
 * First change variable **MPCLYRICSDIR** content i.e. the path to your lyrics directory
 * Bind this script with some keyboard shortcut
 * Once invoked you can perform all the mpc specific commands
-* Press "Enter" to toggle between play and pause
+* Press *Enter* to toggle between play and pause
 * MPC command can be executed with or without the STDOUT being displayed.
      * If STDOUT is not required, execute mpc commands normally Ex:
        * ```mpc stop```
@@ -25,7 +25,7 @@ Usage:
        * ```mpc ls @``` (or) ```mpc ls@```
        * ```mpc playlist@``` (or) ```mpc playlist @``` etc.
 * Use ```mpc lyrics``` for displaying lyrics
-* It searches lyrics via glyrc and download it to specified directory
+* It searches lyrics via **glyrc** and download it to specified directory
    mentioned in variable **MPCLYRICSDIR**
    
    Thats's all,

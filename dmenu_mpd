@@ -1,0 +1,51 @@
+#!/bin/bash
+
+## Function for showing dmenu
+function mpdmenu() {
+    echo -e "  `mpc status | awk 'FNR == 2 {print}' | awk '{print $1" "$2}' | tr '[a-z]' '[A-Z]'` :: `mpc -f \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) current`\n  <<================================================================================================= `mpc status | awk 'FNR == 3 {print}' | awk '{print "r:"$3"|""s:"$7"|""ran:"$5"|""c:"$9}'` ==== MPD CLIENT ====>>\n`mpc -f \ \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) playlist`" | nl -v -1 -s ':' | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "PLAY TRACK:" -l 15 | cut -d ":" -f1
+}
+
+## Function for displaying or downloading lyrics
+function showlyrics() {
+    if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
+        if [[ -f "$MPCLYRICSDIR"/"`mpc status | awk 'FNR == 1 {print}'`.txt" ]]; then
+            cat "$MPCLYRICSDIR"/"`mpc status | awk 'FNR == 1 {print}'`.txt" | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "LYRICS:" -l 15
+        else
+            ## Downloading lyrics using glyrc
+            ## [w]: lyricswiki [g]: vagalume [z]: lipwalk
+            mpdmenu && glyrc lyrics -f "w;g;z" --artist "`mpc -f %artist% current`" --title "`mpc -f %title% current`" -w $MPCLYRICSDIR/:artist:\ -\ :title:.txt &> $MPCLYRICSDIR/dmenu_glyrc.log
+            if [[ $? == 0 ]]; then
+                cat "$MPCLYRICSDIR"/"`mpc status | awk 'FNR == 1 {print}'`.txt" | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "LYRICS:" -l 15
+            fi
+        fi
+     fi
+}
+
+while true; do
+    ## Lyrics Directory
+    MPCLYRICSDIR="/home/sanketkrsingh/Music/dmusc/lyrics/mpd_lyrics"
+    ## MPC Status i.e. either [playing] or [paused]
+    MPCSTATUS=$(mpc status | awk 'FNR == 2 {print}' | awk '{print $1}')
+    ## Value Returned (or selected row)
+    MPCTRACKNUM=$(mpdmenu)
+    if [[ $MPCTRACKNUM -eq -1 ]]; then
+        if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
+            mpc toggle &> /dev/null
+        else
+            mpc play &> /dev/null
+        fi
+    elif [[ $MPCTRACKNUM -ge 1 ]]; then
+        mpc play $MPCTRACKNUM &> /dev/null
+    ## MPC Commmands #####################################
+    ## Display lyrics
+    elif [[ "$MPCTRACKNUM" == "mpc lyrics" ]]; then showlyrics
+    ## Execute MPC Command and display STDOUT 
+    elif [[ "$MPCTRACKNUM" == "mpc "*@ ]]; then `echo $MPCTRACKNUM | cut -d '@' -f2 --complement` | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "OUTPUT:" -l 15
+    ## Execute MPC Command w/o STDOUT
+    elif [[ "$MPCTRACKNUM" == "mpc "* ]]; then $MPCTRACKNUM &> /dev/null
+    ## Ignore commands other than MPC Specific
+    elif [[ "$MPCTRACKNUM" == ?* ]]; then mpdmenu
+    else
+        exit 0 
+    fi
+done

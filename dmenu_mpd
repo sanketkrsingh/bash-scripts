@@ -40,7 +40,7 @@ while true; do
     ## Display lyrics
     elif [[ "$MPCTRACKNUM" == "mpc lyrics" ]]; then showlyrics
     ## Execute MPC Command and display STDOUT 
-    elif [[ "$MPCTRACKNUM" == "mpc "*@ ]]; then `echo $MPCTRACKNUM | cut -d '@' -f2 --complement` | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "OUTPUT:" -l 15
+    elif [[ "$MPCTRACKNUM" == "mpc "*@ ]]; then eval $(echo $MPCTRACKNUM | cut -d '@' -f2 --complement) | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "OUTPUT:" -l 15
     ## Execute MPC Command w/o STDOUT
     elif [[ "$MPCTRACKNUM" == "mpc "* ]]; then $MPCTRACKNUM &> /dev/null
     ## Ignore commands other than MPC Specific

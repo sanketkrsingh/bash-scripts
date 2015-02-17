@@ -42,9 +42,10 @@ while true; do
     ## Execute MPC Command and display STDOUT 
     elif [[ "$MPCTRACKNUM" == "mpc "*@ ]]; then eval $(echo $MPCTRACKNUM | cut -d '@' -f2 --complement) | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "OUTPUT:" -l 15
     ## Execute MPC Command w/o STDOUT
-    elif [[ "$MPCTRACKNUM" == "mpc "* ]]; then $MPCTRACKNUM &> /dev/null
+    elif [[ "$MPCTRACKNUM" == "mpc "* ]]; then eval $MPCTRACKNUM &> /dev/null
     ## Ignore commands other than MPC Specific
     elif [[ "$MPCTRACKNUM" == ?* ]]; then mpdmenu
+    ## Exit Safely
     else
         exit 0 
     fi

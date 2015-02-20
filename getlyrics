@@ -1,6 +1,7 @@
 #!/bin/bash
 
 MPCLYRICSDIR="/home/sanketkrsingh/Music/dmusc/lyrics/mpd_lyrics"
+LYRICSSOURCE="w;g;z;e"
 ARTISTMESG="================================================================================\n1) Select ARTIST of soundtrack currently being played/paused in mpc player (or)\n2) Enter ARTIST manully\n================================================================================"
 TITLEMESG="================================================================================\n1) Select TITLE of soundtrack currently being played/paused in mpc player (or)\n2) Enter TITLE manully\n================================================================================"
 ADMESG="================================================================================\n1) Select to view or edit the lyrics file (or)\n2) Select to rename the file as per mpc playlist (or)\n3) Select to exit\n================================================================================"
@@ -107,7 +108,7 @@ done
 
 function lyrics_down() {
 if [[ ! -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
-    glyrc lyrics -f "w;g;z;e" --artist "$Artist" --title "$Title" -w $MPCLYRICSDIR/:artist:\ -\ :title:.txt && echo "..."
+    glyrc lyrics -f "$LYRICSSOURCE" --artist "$Artist" --title "$Title" -w $MPCLYRICSDIR/:artist:\ -\ :title:.txt && echo "..."
     if [[ $? == 0 && -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
         after_down
     else

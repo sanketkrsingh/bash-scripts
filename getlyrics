@@ -6,13 +6,22 @@ TITLEMESG="=====================================================================
 ADMESG="================================================================================\n1) Select to view or edit the lyrics file (or)\n2) Select to rename the file as per mpc playlist (or)\n3) Select to exit\n================================================================================"
 
 function song_artist() {
+clear
 echo -e $ARTISTMESG
 OPTIONS="mpc manual"
 select opt in $OPTIONS; do
     if [[ $opt == "mpc" ]]; then
-        Artist=`mpc current -f %artist%`
-        echo "MESSAGE: Selecting \"$Artist\" as artist"
-        break
+        MPCSTATUS=$(mpc status | awk 'FNR == 2 {print}' | awk '{print $1}')
+        if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
+            Position=`mpc current -f %position%`
+            Artist=`mpc current -f %artist%`
+            break
+        else
+            clear
+            echo "WARNING: Currently mpc is not running any soundtrack"
+            echo "MESSAGE: You may go (2) Manual"
+            echo -e $ARTISTMESG
+        fi
     elif [[ $opt == "manual" ]]; then
         read Artist
         echo "MESSAGE: Selecting \"$Artist\" as artist"
@@ -26,17 +35,36 @@ done
 }
 
 function song_title() {
+clear
+echo "MESSAGE: Selected \"$Artist\" as artist"
 echo -e $TITLEMESG
-OPTIONS="mpc manual"
+OPTIONS="mpc manual restart"
 select opt in $OPTIONS; do
     if [[ $opt == "mpc" ]]; then
-        Title=`mpc current -f %title%`
-        echo "MESSAGE: Selecting \"$Title\" as title"
-        break
+        MPCSTATUS=$(mpc status | awk 'FNR == 2 {print}' | awk '{print $1}')
+        if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
+            if [[ $Position == `mpc current -f %position%` ]]; then
+                Title=`mpc current -f %title%`
+                echo "MESSAGE: Selecting \"$Title\" as title"
+                break
+            else
+                clear
+                echo "WARNING: Soundtrack Changed"
+                echo "MESSAGE: Either go (2)Manual or (3)Restart"
+                echo -e $TITLEMESG
+            fi
+        else
+            clear
+            echo "WARNING: Currently mpc is not running any soundtrack"
+            echo "MESSAGE: Either go (2)Manual or (3)Restart"
+            echo -e $TITLEMESG
+        fi
     elif [[ $opt == "manual" ]]; then
         read Title
         echo "MESSAGE: Selecting \"$Title\" as title"
         break
+    elif [[ $opt == "restart" ]]; then
+       main 
     else
         clear
         echo "ERROR: Bad option, please choose the correct option i.e. 1 or 2"
@@ -93,6 +121,7 @@ else
 fi
 }
 
+function main() {
 clear
 song_artist
 while true; do
@@ -102,15 +131,19 @@ while true; do
             clear
             echo "ERROR: You cannot leave the title field empty!" 
             echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
-            song_title
+            echo "Menu will appear in 5 seconds..."
+            sleep 5 && song_title
         done
         break
     else
         clear
         echo "ERROR: You cannot leave the artist field empty!"
-        song_artist
+        echo "Menu will appear in 5 seconds..."
+        sleep 5 && song_artist
     fi
 done
 lyrics_down
 
 exit 0
+}
+main

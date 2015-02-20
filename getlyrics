@@ -3,8 +3,8 @@
 MPCLYRICSDIR="/home/sanketkrsingh/Music/dmusc/lyrics/mpd_lyrics"
 LYRICSSOURCE="w;g;z;e"
 ARTISTMESG="================================================================================\n1) Select ARTIST of soundtrack currently being played/paused in mpc player (or)\n2) Enter ARTIST manully\n================================================================================"
-TITLEMESG="================================================================================\n1) Select TITLE of soundtrack currently being played/paused in mpc player (or)\n2) Enter TITLE manully\n================================================================================"
-ADMESG="================================================================================\n1) Select to view or edit the lyrics file (or)\n2) Select to rename the file as per mpc playlist (or)\n3) Select to exit\n================================================================================"
+TITLEMESG="================================================================================\n1) Select TITLE of soundtrack currently being played/paused in mpc player (or)\n2) Enter TITLE manully\n3) Select to restart\n================================================================================"
+ADMESG="================================================================================\n1) Select to view or edit the lyrics file (or)\n2) Select to rename the file as per mpc playlist (or)\n3) Select to download another lyrics (or)\n4) Select to exit\n================================================================================"
 
 function song_artist() {
 clear
@@ -24,6 +24,7 @@ select opt in $OPTIONS; do
             echo -e $ARTISTMESG
         fi
     elif [[ $opt == "manual" ]]; then
+        Position=`mpc current -f %position%`
         read Artist
         echo "MESSAGE: Selecting \"$Artist\" as artist"
         break
@@ -46,7 +47,9 @@ select opt in $OPTIONS; do
         if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
             if [[ $Position == `mpc current -f %position%` ]]; then
                 Title=`mpc current -f %title%`
-                echo "MESSAGE: Selecting \"$Title\" as title"
+                clear
+                echo "MESSAGE: Selecting \"$Title\" as title for artist \"$Artist\""
+                echo -e "Quering lyrics sources...\n"
                 break
             else
                 clear
@@ -62,7 +65,9 @@ select opt in $OPTIONS; do
         fi
     elif [[ $opt == "manual" ]]; then
         read Title
-        echo "MESSAGE: Selecting \"$Title\" as title"
+        clear
+        echo "MESSAGE: Selecting \"$Title\" as title for artist \"$Artist\""
+        echo -e "Quering lyrics sources...\n"
         break
     elif [[ $opt == "restart" ]]; then
        main 
@@ -77,23 +82,37 @@ done
 
 function after_down() {
 echo -e $ADMESG
-OPTIONS="view rename exit"
+OPTIONS="view rename download exit"
 select opt in $OPTIONS; do
     if [[ $opt == "view" ]]; then
-        less $MPCLYRICSDIR/"$Artist - $Title".txt
+        if [[ -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
+            less $MPCLYRICSDIR/"$Artist - $Title".txt
+        elif [[ -f $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt ]]; then
+            less $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt 
+        fi
     elif [[ $opt == "rename" ]]; then
-        if [[ "$Artist - $Title" != "`mpc current -f %artist%` - `mpc current -f %title%`" ]]; then
-            mv $MPCLYRICSDIR/"$Artist - $Title".txt $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt
-            if [[ $? == 0 && -f $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt ]]; then
+        if [[ $Position == `mpc current -f %position%` ]]; then
+            if [[ "$Artist - $Title" != "`mpc current -f %artist%` - `mpc current -f %title%`" ]]; then
+                mv $MPCLYRICSDIR/"$Artist - $Title".txt $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt
+                if [[ $? == 0 && -f $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt ]]; then
+                    clear
+                    Artist=`mpc current -f %artist%` && Title=`mpc current -f %title%`
+                    echo "MESSAGE: File renamed successfully!"
+                    echo -e $ADMESG
+                fi
+            else
                 clear
-                echo "MESSAGE: File renamed successfully!"
+                echo "MESSAGE: File has already been renamed" 
                 echo -e $ADMESG
             fi
          else
             clear
-            echo "MESSAGE: File has already been renamed" 
+            echo "WARNING: Soundtrack Changed"
+            echo "MESSAGE: Rename operation not allowed. Select the right track first"
             echo -e $ADMESG
          fi
+    elif [[ $opt == "download" ]]; then
+        main
     elif [[ $opt == "exit" ]]; then
          clear
          echo "MESSAGE: Operation completed successfully! GoodBye!"

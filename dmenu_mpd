@@ -2,7 +2,7 @@
 
 ## Function for showing dmenu
 function mpdmenu() {
-    echo -e "  `mpc status | awk 'FNR == 2 {print}' | awk '{print "MODE:"$1" ""POSITION:"$2" ""TIME:"$3}'` ::`mpc -f \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) current`\n  <<================================================================================================= `mpc status | grep volume: | awk '{print "r:"$3"|""s:"$7"|""ran:"$5"|""c:"$9}'` ==== MPD CLIENT ====>>\n`mpc -f \ \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) playlist`" | nl -v -1 -s ':' | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "PLAY TRACK:" -l 15 | cut -d ":" -f1
+    echo -e "  `mpc status | awk 'FNR == 2 {print}' | awk '{print "MODE:"$1" ""POSITION:"$2" ""TIME:"$3}'` ::`mpc -f \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) current`\n  <<================================================================================================= `mpc status | grep volume: | awk '{print "r:"$3"|""s:"$7"|""ran:"$5"|""c:"$9}'` ==== MPD CLIENT ====>>\n`mpc -f \ \ \(%artist%\)\ \ \(%album%\)\ \ \(%title%\) playlist`\n  <<=============================================================================================================================== MPD CLIENT ====>>" | nl -v -1 -s ':' | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "PLAY TRACK:" -l 15 | cut -d ":" -f1
 }
 
 ## Function for displaying or downloading lyrics

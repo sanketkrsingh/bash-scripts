@@ -129,7 +129,7 @@ while true; do
         song_title
         while [[ ! -n "$Title" ]]; do
             clear
-            echo "ERROR: You cannot leave the title field empty!" 
+            echo "ERROR: You cannot leave the TITLE field empty!" 
             echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
             echo "Menu will appear in 5 seconds..."
             sleep 5 && song_title
@@ -137,7 +137,7 @@ while true; do
         break
     else
         clear
-        echo "ERROR: You cannot leave the artist field empty!"
+        echo "ERROR: You cannot leave the ARTIST field empty!"
         echo "Menu will appear in 5 seconds..."
         sleep 5 && song_artist
     fi

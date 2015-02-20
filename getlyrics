@@ -1,0 +1,116 @@
+#!/bin/bash
+
+MPCLYRICSDIR="/home/sanketkrsingh/Music/dmusc/lyrics/mpd_lyrics"
+ARTISTMESG="================================================================================\n1) Select ARTIST of soundtrack currently being played/paused in mpc player (or)\n2) Enter ARTIST manully\n================================================================================"
+TITLEMESG="================================================================================\n1) Select TITLE of soundtrack currently being played/paused in mpc player (or)\n2) Enter TITLE manully\n================================================================================"
+ADMESG="================================================================================\n1) Select to view or edit the lyrics file (or)\n2) Select to rename the file as per mpc playlist (or)\n3) Select to exit\n================================================================================"
+
+function song_artist() {
+echo -e $ARTISTMESG
+OPTIONS="mpc manual"
+select opt in $OPTIONS; do
+    if [[ $opt == "mpc" ]]; then
+        Artist=`mpc current -f %artist%`
+        echo "MESSAGE: Selecting \"$Artist\" as artist"
+        break
+    elif [[ $opt == "manual" ]]; then
+        read Artist
+        echo "MESSAGE: Selecting \"$Artist\" as artist"
+        break
+    else
+        clear
+        echo "ERROR: Bad option, please choose the correct option i.e. 1 or 2"
+        echo -e $ARTISTMESG
+    fi
+done
+}
+
+function song_title() {
+echo -e $TITLEMESG
+OPTIONS="mpc manual"
+select opt in $OPTIONS; do
+    if [[ $opt == "mpc" ]]; then
+        Title=`mpc current -f %title%`
+        echo "MESSAGE: Selecting \"$Title\" as title"
+        break
+    elif [[ $opt == "manual" ]]; then
+        read Title
+        echo "MESSAGE: Selecting \"$Title\" as title"
+        break
+    else
+        clear
+        echo "ERROR: Bad option, please choose the correct option i.e. 1 or 2"
+        echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
+        echo -e $TITLEMESG
+    fi
+done
+}
+
+function after_down() {
+echo -e $ADMESG
+OPTIONS="view rename exit"
+select opt in $OPTIONS; do
+    if [[ $opt == "view" ]]; then
+        less $MPCLYRICSDIR/"$Artist - $Title".txt
+    elif [[ $opt == "rename" ]]; then
+        if [[ "$Artist - $Title" != "`mpc current -f %artist%` - `mpc current -f %title%`" ]]; then
+            mv $MPCLYRICSDIR/"$Artist - $Title".txt $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt
+            if [[ $? == 0 && -f $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt ]]; then
+                clear
+                echo "MESSAGE: File renamed successfully!"
+                echo -e $ADMESG
+            fi
+         else
+            clear
+            echo "MESSAGE: File has already been renamed" 
+            echo -e $ADMESG
+         fi
+    elif [[ $opt == "exit" ]]; then
+         clear
+         echo "MESSAGE: Operation completed successfully! GoodBye!"
+         break
+    else
+         clear
+         echo "ERROR: Bad option, please choose the correct option i.e. 1, 2 or 3"
+         echo -e $ADMESG
+    fi
+done
+}
+
+function lyrics_down() {
+if [[ ! -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
+    glyrc lyrics -f "w;g;z;e" --artist "$Artist" --title "$Title" -w $MPCLYRICSDIR/:artist:\ -\ :title:.txt && echo "..."
+    if [[ $? == 0 && -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
+        after_down
+    else
+        clear
+        echo "MESSAGE: Sorry! Lyrics not found for -- Artist:$Artist  Title:$Title"
+    fi
+else
+    clear 
+    echo "MESSAGE: Lyrics file "$Artist - $Title".txt already exist!"
+    after_down
+fi
+}
+
+clear
+song_artist
+while true; do
+    if [[ -n "$Artist" ]]; then
+        song_title
+        while [[ ! -n "$Title" ]]; do
+            clear
+            echo "ERROR: You cannot leave the title field empty!" 
+            echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
+            song_title
+        done
+        break
+    else
+        clear
+        echo "ERROR: You cannot leave the artist field empty!"
+        song_artist
+    fi
+done
+lyrics_down
+
+exit 0

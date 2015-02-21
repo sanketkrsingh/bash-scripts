@@ -1,5 +1,6 @@
 #!/bin/bash
 
+PS3="Your Input Please  >> "
 MPCLYRICSDIR="/home/sanketkrsingh/Music/dmusc/lyrics/mpd_lyrics"
 LYRICSSOURCE="w;g;z;e"
 ARTISTMESG="================================================================================\n1) Select ARTIST of soundtrack currently being played/paused in mpc player (or)\n2) Enter ARTIST manully\n================================================================================"
@@ -54,6 +55,7 @@ select opt in $OPTIONS; do
             else
                 clear
                 echo "WARNING: Soundtrack Changed"
+                echo "MESSAGE: Select a TITLE for artist \"$Artist\""
                 echo "MESSAGE: Either go (2)Manual or (3)Restart"
                 echo -e $TITLEMESG
             fi
@@ -74,7 +76,7 @@ select opt in $OPTIONS; do
     else
         clear
         echo "ERROR: Bad option, please choose the correct option i.e. 1 or 2"
-        echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
+        echo "MESSAGE: Now Select a TITLE for artist \"$Artist\""
         echo -e $TITLEMESG
     fi
 done
@@ -86,9 +88,13 @@ OPTIONS="view rename download exit"
 select opt in $OPTIONS; do
     if [[ $opt == "view" ]]; then
         if [[ -f $MPCLYRICSDIR/"$Artist - $Title".txt ]]; then
+            clear
             less $MPCLYRICSDIR/"$Artist - $Title".txt
+            echo -e $ADMESG
         elif [[ -f $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt ]]; then
+            clear
             less $MPCLYRICSDIR/"`mpc current -f %artist%` - `mpc current -f %title%`".txt 
+            echo -e $ADMESG
         fi
     elif [[ $opt == "rename" ]]; then
         if [[ $Position == `mpc current -f %position%` ]]; then
@@ -102,7 +108,7 @@ select opt in $OPTIONS; do
                 fi
             else
                 clear
-                echo "MESSAGE: File has already been renamed" 
+                echo "MESSAGE: File has already been renamed and is in proper sync with mpc playlist" 
                 echo -e $ADMESG
             fi
          else
@@ -150,7 +156,7 @@ while true; do
         while [[ ! -n "$Title" ]]; do
             clear
             echo "ERROR: You cannot leave the TITLE field empty!" 
-            echo "MESSAGE: Now SELECT a TITLE for artist \"$Artist\""
+            echo "MESSAGE: Now Select a TITLE for artist \"$Artist\""
             echo "Menu will appear in 5 seconds..."
             sleep 5 && song_title
         done

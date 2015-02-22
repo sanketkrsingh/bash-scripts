@@ -74,7 +74,7 @@ function downloadfile() {
     if [[ $? -eq 0 ]]; then
         echo "Internet Connection Exist"
         echo -e "Downloading "$1$2".pdf. Please Wait...\n\n"
-        wget $(echo "wget http://www.link.com) -O /home/stkrsh/Payslips/"$2"/"$1$2".pdf 
+        wget $(echo "wget http://www.link.com) -O "$PAYSLIPDIR"/"$2"/"$1$2".pdf 
         if [[ $? -eq 4 ]]; then
             checkifexist $1 $2
             if [[ $? -eq 0 ]]; then #If File Downloaded Successfully

@@ -21,7 +21,7 @@ PUSERID=321         #
 
 MENUMESG="##################################################\n## [*] Enter 1 to View/Download Payslip (or)\n## [*] Enter 2 to view Error Codes\n## [*] Enter 3 to Exit\n##################################################"
 BASEYEAR=2011
-PAYSLIPDIR="/home/sanketkrsingh/Documents/ddocs/extra/Payslips"
+PAYSLIPDIR="/home/stkrsh/Payslips"
 
 function dateinput() {
     read -p "Enter Month [01 - 12] : " Month
@@ -74,7 +74,7 @@ function downloadfile() {
     if [[ $? -eq 0 ]]; then
         echo "Internet Connection Exist"
         echo -e "Downloading "$1$2".pdf. Please Wait...\n\n"
-        wget $(echo "wget http://www.link.com) -O /home/sanketkrsingh/Documents/ddocs/extra/Payslips/"$2"/"$1$2".pdf 
+        wget $(echo "wget http://www.link.com) -O /home/stkrsh/Payslips/"$2"/"$1$2".pdf 
         if [[ $? -eq 4 ]]; then
             checkifexist $1 $2
             if [[ $? -eq 0 ]]; then #If File Downloaded Successfully

@@ -1,0 +1,155 @@
+#!/bin/bash
+
+PS3="Enter >> "
+
+## Error Codes ######################################
+Success=0                                           #
+MonthRE=1                   #Month Range Exceeded   #
+INCMonth=2                  #Invalid Month Value    #
+INCYear=3                   #Invalid Year Value     #
+FileNE=5                    #File Not Exist         #
+WgetERR=6                   #Wget Error             #
+InternetERR=7               #Internet Error         #
+#####################################################
+
+# wget command completion returning 4, don't know why
+
+## Emp Info #########
+EMPID=3489	    #
+PUSERID=321         #
+#####################
+
+MENUMESG="##################################################\n## [*] Enter 1 to View/Download Payslip (or)\n## [*] Enter 2 to view Error Codes\n## [*] Enter 3 to Exit\n##################################################"
+BASEYEAR=2011
+PAYSLIPDIR="/home/sanketkrsingh/Documents/ddocs/extra/Payslips"
+
+function dateinput() {
+    read -p "Enter Month [01 - 12] : " Month
+    Month=`printf {"%02d",$Month}`
+
+    read -p "Enter Year [2011 - `date +%Y`] : " Year
+    if [[ $[`echo $Year|wc -m` - 1] == 2 ]]; then
+    Year=20$Year
+    fi
+}
+
+function datevalidation() {
+    if [[ $2 -ge $BASEYEAR && $2 -le `date +%Y` ]]; then #If Year b/w BASE YEAR & CURRENT YEAR
+        if [[ $2 -eq `date +%Y` ]]; then #If CURRENT YEAR
+            if [[ $1 -lt `date +%m` ]]; then #If Month le CURRENT MONTH
+                return $Success 
+            else
+                return $MonthRE #Month Range Exceeded
+            fi
+        elif [[ $1 -ge 1 && $1 -le 12 ]]; then #Year lt CURRENT YEAR, If Month ge 1 & le 12
+            return $Success
+        else
+            return $INCMonth #Month out of range, Month not b/w 1 & 12
+        fi
+    else 
+        return $INCYear #Incorrect Year
+    fi    
+}
+
+function checkifexist() {
+    if [[ -d "$PAYSLIPDIR"/"$2" ]]; then #If Directory Exist
+        if [[ -f "$PAYSLIPDIR"/"$2"/"$1$2".pdf ]]; then #If File Exist
+            return $Success
+        else
+            return $FileNE
+        fi
+    else
+        mkdir -p "$PAYSLIPDIR"/"$2"
+        return $FileNE
+    fi
+}
+
+function accessfile() {
+    evince "$PAYSLIPDIR"/"$2"/"$1$2".pdf &> /dev/null &
+}
+
+function downloadfile() {
+    echo -e "\nChecking Internet Connectivity..."
+    checkconn
+    if [[ $? -eq 0 ]]; then
+        echo "Internet Connection Exist"
+        echo -e "Downloading "$1$2".pdf. Please Wait...\n\n"
+        wget $(echo "wget http://www.link.com) -O /home/sanketkrsingh/Documents/ddocs/extra/Payslips/"$2"/"$1$2".pdf 
+        if [[ $? -eq 4 ]]; then
+            checkifexist $1 $2
+            if [[ $? -eq 0 ]]; then #If File Downloaded Successfully
+                return $Success 
+            else
+                return $FileNE
+            fi
+        else 
+            return $WgetERR
+        fi
+    else
+        return $InternetERR
+    fi
+}
+
+function runpayslip() {
+echo -e $MENUMESG
+OPTIONS="View/Download Error-Codes Exit"
+select opt in $OPTIONS; do
+    if [[ $opt == "View/Download" ]]; then
+        dateinput
+        datevalidation $Month $Year
+        local Status=$?
+        if [[ $Status -eq 0 ]]; then
+            checkifexist $Month $Year
+            if [[ $? -eq 0 ]]; then
+                clear
+                echo "File Exist"
+                accessfile $Month $Year
+                echo "File Viewed: "$Month$Year".pdf"
+                echo -e $MENUMESG
+            else
+                downloadfile $Month $Year
+                local Status=$?
+                if [[ $Status -eq 0 ]]; then
+                    clear
+                    echo "File Downloaded"
+                    accessfile $Month $Year
+                    echo "File Viewed: "$Month$Year".pdf"
+                    echo -e $MENUMESG
+                else
+                    clear
+                    echo "Download Error $Status, Try Again !"
+                    echo -e $MENUMESG
+                fi
+            fi
+        else
+            clear
+            echo "Date Error $Status"
+            echo "Please input date between 01/2011 and `date --date="$(date +%Y-%m-15) -1 month" +'%m'`/`date +%Y`"
+            echo -e $MENUMESG
+        fi
+    elif [[ $opt == "Error-Codes" ]]; then
+        clear
+        echo "########################### Error Codes #############################"
+        echo "1 : Month Range Exceeded i.e. Month is outside 01-12 boundary"
+        echo "2 : Invalid Month Value i.e. Month for which Payslip not exist"
+        echo "3 : Invalid Year Value i.e. Year is outside 2011-`date +%Y` boundary"
+        echo "5 : Payslip file not exist"
+        echo "6 : Wget Error i.e error reported by downloader"
+        echo "7 : Internet not connected" 
+        echo "#####################################################################"
+        read -p "Press Enter to return to main menu : " -s Answer \n
+        clear
+        echo -e $MENUMESG
+    elif [[ $opt == "Exit" ]]; then
+        echo "GoodBye!"
+        exit 0
+    else
+        clear
+        echo "Bad Option, Please choose either 1 or 2"
+        echo -e $MENUMESG
+     fi
+done
+}
+
+clear
+runpayslip

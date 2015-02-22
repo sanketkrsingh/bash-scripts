@@ -19,9 +19,9 @@ EMPID=3489	    #
 PUSERID=321         #
 #####################
 
-MENUMESG="##################################################\n## [*] Enter 1 to View/Download Payslip (or)\n## [*] Enter 2 to view Error Codes\n## [*] Enter 3 to Exit\n##################################################"
+MENUMESG="##################################################\n## [*] Enter 1 to View/Download Slip (or)\n## [*] Enter 2 to view Error Codes\n## [*] Enter 3 to Exit\n##################################################"
 BASEYEAR=2011
-PAYSLIPDIR="/home/stkrsh/Payslips"
+SLIPDIR="/home/stkrsh/Slips"
 
 function dateinput() {
     read -p "Enter Month [01 - 12] : " Month
@@ -52,20 +52,20 @@ function datevalidation() {
 }
 
 function checkifexist() {
-    if [[ -d "$PAYSLIPDIR"/"$2" ]]; then #If Directory Exist
-        if [[ -f "$PAYSLIPDIR"/"$2"/"$1$2".pdf ]]; then #If File Exist
+    if [[ -d "$SLIPDIR"/"$2" ]]; then #If Directory Exist
+        if [[ -f "$SLIPDIR"/"$2"/"$1$2".pdf ]]; then #If File Exist
             return $Success
         else
             return $FileNE
         fi
     else
-        mkdir -p "$PAYSLIPDIR"/"$2"
+        mkdir -p "$SLIPDIR"/"$2"
         return $FileNE
     fi
 }
 
 function accessfile() {
-    evince "$PAYSLIPDIR"/"$2"/"$1$2".pdf &> /dev/null &
+    evince "$SLIPDIR"/"$2"/"$1$2".pdf &> /dev/null &
 }
 
 function downloadfile() {
@@ -74,7 +74,7 @@ function downloadfile() {
     if [[ $? -eq 0 ]]; then
         echo "Internet Connection Exist"
         echo -e "Downloading "$1$2".pdf. Please Wait...\n\n"
-        wget $(echo "wget http://www.link.com) -O "$PAYSLIPDIR"/"$2"/"$1$2".pdf 
+        wget $(echo "wget http://www.link.com) -O "$SLIPDIR"/"$2"/"$1$2".pdf 
         if [[ $? -eq 4 ]]; then
             checkifexist $1 $2
             if [[ $? -eq 0 ]]; then #If File Downloaded Successfully
@@ -90,7 +90,7 @@ function downloadfile() {
     fi
 }
 
-function runpayslip() {
+function runslip() {
 echo -e $MENUMESG
 OPTIONS="View/Download Error-Codes Exit"
 select opt in $OPTIONS; do
@@ -131,9 +131,9 @@ select opt in $OPTIONS; do
         clear
         echo "########################### Error Codes #############################"
         echo "1 : Month Range Exceeded i.e. Month is outside 01-12 boundary"
-        echo "2 : Invalid Month Value i.e. Month for which Payslip not exist"
+        echo "2 : Invalid Month Value i.e. Month for which Slip not exist"
         echo "3 : Invalid Year Value i.e. Year is outside 2011-`date +%Y` boundary"
-        echo "5 : Payslip file not exist"
+        echo "5 : Slip file not exist"
         echo "6 : Wget Error i.e error reported by downloader"
         echo "7 : Internet not connected" 
         echo "#####################################################################"
@@ -152,4 +152,4 @@ done
 }
 
 clear
-runpayslip
+runslip

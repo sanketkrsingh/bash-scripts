@@ -2,7 +2,7 @@
 Shell script for perfoming operations on mpd via dmenu and mpc client
 
 Features:
-* dmenu_mpd helps you to perform every single function of mpc via interactive dmenu
+* dmenu_mpd helps you to perform almost every single function of mpc via interactive dmenu
 * You may also view and download lyrics of song being played.
 * It simply decrease the access time for playing music, searching & loading playlist etc... 
 

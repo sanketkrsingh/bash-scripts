@@ -8,7 +8,7 @@ function mpdmenu() {
 ## Function for displaying or downloading lyrics
 function showlyrics() {
     if [[ "$MPCSTATUS" == "[playing]" || "$MPCSTATUS" == "[paused]" ]]; then
-        if [[ -f "$MPCLYRICSDIR"/"`mpc status | awk 'FNR == 1 {print}'`.txt" ]]; then
+        if [[ -f "$MPCLYRICSDIR/`mpc status | awk 'FNR == 1 {print}'`.txt" ]]; then
             cat "$MPCLYRICSDIR"/"`mpc status | awk 'FNR == 1 {print}'`.txt" | dmenu -fn "Monospace-10:normal" -sb "#A348B1" -b -i -p "LYRICS:" -l 15
         else
             ## Downloading lyrics using glyrc

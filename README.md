@@ -1,1 +1,1 @@
-Collection of various Scripts
+Collection of various scripts

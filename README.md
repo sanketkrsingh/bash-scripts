@@ -1,1 +1,1 @@
-Collection of various scripts
+# bashScripts
